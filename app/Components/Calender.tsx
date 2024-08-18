@@ -2,28 +2,84 @@
 "use client";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-type ValuePiece = Date | null;
-
-type Value = ValuePiece | [ValuePiece, ValuePiece];
-
 import React, { useState } from "react";
-import { Box, HStack, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Heading,
+  HStack,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+} from "@chakra-ui/react";
+import { MdKeyboardArrowDown } from "react-icons/md";
+import Event from "./Event";
+import Task from "./Task";
 
 export default function Calender() {
-  const [selectedDay, setSelectedDay] = useState(null);
+  const currentDate = new Date();
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const day = String(currentDate.getDate()).padStart(2, "0");
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const [selectedDay, setSelectedDay] = useState(day);
+  const [selectedMonth, setSelectedMonth] = useState(`${monthNames[month]}`);
 
   const handleDateChange = (date) => {
-    const day = date.getDate(); // Get the day value from the selected date
+    const day = date.getDate();
+    const month = date.getMonth();
     setSelectedDay(day);
-    console.log("Selected day:", day); // Log the selected day to the console
+    setSelectedMonth(monthNames[month]);
+    console.log("Selected day:", day + " month:", monthNames[month]);
   };
-
+  function CreateEvent({}) {}
+  function CreateTask({}) {}
   return (
-    <HStack>
+    <>
+      <HStack p={2}>
+        <Box p={2}>
+          <Calendar onChange={handleDateChange} />
+        </Box>
+      </HStack>
       <Box>
-        <Calendar onChange={handleDateChange} />
+      <Box>
+          {
+            <HStack justifyContent={"center"}>
+              <Heading>
+                {selectedDay} {selectedMonth}
+              </Heading>
+              <Box>
+                <Menu>
+                  <MenuButton as={Button} rightIcon={<MdKeyboardArrowDown />}>
+                    Create
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem onClick={CreateEvent}>New Event</MenuItem>
+                    <MenuItem onClick={CreateEvent}>Task</MenuItem>
+                  </MenuList>
+                </Menu>
+              </Box>
+            </HStack>
+          }
+        </Box>
       </Box>
-      <Box>{selectedDay && <p>Selected Day: {selectedDay}</p>}</Box>
-    </HStack>
+    </>
   );
 }

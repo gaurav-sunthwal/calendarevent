@@ -6,12 +6,15 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
-  const [userId, setUserId] = useState(() => localStorage.getItem("userId"));
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setUserId(storedUserId);
+    // Ensure we're in the browser environment
+    if (typeof window !== "undefined") {
+      const storedUserId = localStorage.getItem("userId");
+      if (storedUserId) {
+        setUserId(storedUserId);
+      }
     }
   }, []);
 

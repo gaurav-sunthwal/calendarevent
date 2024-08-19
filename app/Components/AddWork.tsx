@@ -37,142 +37,145 @@ import {
 import { Firebase_DB } from "../FirebaseConfig";
 
 export default function AddWork({ selectedDay, selectedMonth, userId }) {
-    const [tasks, setTasks] = useState([]);
-    const [events, setEvents] = useState([]);
-    const [taskInput, setTaskInput] = useState("");
-    const [eventInput, setEventInput] = useState("");
-    const [editingTaskIndex, setEditingTaskIndex] = useState(null);
-    const [editingEventIndex, setEditingEventIndex] = useState(null);
-  
-    const {
-      isOpen: isTaskModalOpen,
-      onOpen: onTaskModalOpen,
-      onClose: onTaskModalClose,
-    } = useDisclosure();
-  
-    const {
-      isOpen: isEventModalOpen,
-      onOpen: onEventModalOpen,
-      onClose: onEventModalClose,
-    } = useDisclosure();
-  
-    useEffect(() => {
-      const fetchData = async () => {
-        const docRef = doc(Firebase_DB, "users", userId);
-        const docSnap = await getDoc(docRef);
-  
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setTasks(data.tasks?.[`${selectedDay}-${selectedMonth}`] || []);
-          setEvents(data.events?.[`${selectedDay}-${selectedMonth}`] || []);
-        } else {
-          setTasks([]);
-          setEvents([]);
-        }
-      };
-  
-      fetchData();
-    }, [selectedDay, selectedMonth]);
-  
-    const createEvent = async () => {
-      if (eventInput.trim()) {
-        const newEvents = [...events, eventInput];
-        setEvents(newEvents);
-        await updateDoc(doc(Firebase_DB, "users", userId), {
-          [`events.${selectedDay}-${selectedMonth}`]: arrayUnion(eventInput),
-        });
-        setEventInput("");
+  const [tasks, setTasks] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [taskInput, setTaskInput] = useState("");
+  const [eventInput, setEventInput] = useState("");
+  const [editingTaskIndex, setEditingTaskIndex] = useState(null);
+  const [editingEventIndex, setEditingEventIndex] = useState(null);
+
+  const {
+    isOpen: isTaskModalOpen,
+    onOpen: onTaskModalOpen,
+    onClose: onTaskModalClose,
+  } = useDisclosure();
+
+  const {
+    isOpen: isEventModalOpen,
+    onOpen: onEventModalOpen,
+    onClose: onEventModalClose,
+  } = useDisclosure();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!userId) return; // Early return if userId is not available
+
+      const docRef = doc(Firebase_DB, "users", userId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setTasks(data.tasks?.[`${selectedDay}-${selectedMonth}`] || []);
+        setEvents(data.events?.[`${selectedDay}-${selectedMonth}`] || []);
+      } else {
+        setTasks([]);
+        setEvents([]);
       }
     };
-  
-    const createTask = async () => {
-      if (taskInput.trim()) {
-        const newTasks = [...tasks, taskInput];
+
+    fetchData();
+  }, [userId, selectedDay, selectedMonth]); // Added userId to the dependency array
+
+  const createEvent = async () => {
+    if (eventInput.trim()) {
+      const newEvents = [...events, eventInput];
+      setEvents(newEvents);
+      await updateDoc(doc(Firebase_DB, "users", userId), {
+        [`events.${selectedDay}-${selectedMonth}`]: arrayUnion(eventInput),
+      });
+      setEventInput("");
+    }
+  };
+
+  const createTask = async () => {
+    if (taskInput.trim()) {
+      const newTasks = [...tasks, taskInput];
+      setTasks(newTasks);
+      await updateDoc(doc(Firebase_DB, "users", userId), {
+        [`tasks.${selectedDay}-${selectedMonth}`]: arrayUnion(taskInput),
+      });
+      setTaskInput("");
+    }
+  };
+
+  const editTask = (index) => {
+    if (tasks.length > 0 && index !== null) {
+      const taskToEdit = tasks[index];
+      setTaskInput(taskToEdit);
+      setEditingTaskIndex(index);
+      onTaskModalOpen();
+    }
+  };
+
+  const saveEditedTask = async () => {
+    if (taskInput.trim() && editingTaskIndex !== null && tasks.length > 0) {
+      const updatedTasks = [...tasks];
+      updatedTasks[editingTaskIndex] = taskInput;
+
+      setTasks(updatedTasks);
+      await updateDoc(doc(Firebase_DB, "users", userId), {
+        [`tasks.${selectedDay}-${selectedMonth}`]: updatedTasks,
+      });
+
+      setEditingTaskIndex(null);
+      setTaskInput("");
+      onTaskModalClose();
+    }
+  };
+
+  const deleteTask = async (index) => {
+    if (tasks.length > 0 && index !== null) {
+      const taskToDelete = tasks[index];
+
+      if (taskToDelete) {
+        const newTasks = tasks.filter((_, i) => i !== index);
         setTasks(newTasks);
         await updateDoc(doc(Firebase_DB, "users", userId), {
-          [`tasks.${selectedDay}-${selectedMonth}`]: arrayUnion(taskInput),
+          [`tasks.${selectedDay}-${selectedMonth}`]: newTasks,
         });
-        setTaskInput("");
       }
-    };
-  
-    const editTask = (index) => {
-      if (tasks.length > 0 && index !== null) {
-        const taskToEdit = tasks[index];
-        setTaskInput(taskToEdit);
-        setEditingTaskIndex(index);
-        onTaskModalOpen();
-      }
-    };
-  
-    const saveEditedTask = async () => {
-      if (taskInput.trim() && editingTaskIndex !== null && tasks.length > 0) {
-        const updatedTasks = [...tasks];
-        updatedTasks[editingTaskIndex] = taskInput;
-  
-        setTasks(updatedTasks);
+    }
+  };
+
+  const editEvent = (index) => {
+    if (events.length > 0 && index !== null) {
+      const eventToEdit = events[index];
+      setEventInput(eventToEdit);
+      setEditingEventIndex(index);
+      onEventModalOpen();
+    }
+  };
+
+  const saveEditedEvent = async () => {
+    if (eventInput.trim() && editingEventIndex !== null && events.length > 0) {
+      const updatedEvents = [...events];
+      updatedEvents[editingEventIndex] = eventInput;
+
+      setEvents(updatedEvents);
+      await updateDoc(doc(Firebase_DB, "users", userId), {
+        [`events.${selectedDay}-${selectedMonth}`]: updatedEvents,
+      });
+
+      setEditingEventIndex(null);
+      setEventInput("");
+      onEventModalClose();
+    }
+  };
+
+  const deleteEvent = async (index) => {
+    if (events.length > 0 && index !== null) {
+      const eventToDelete = events[index];
+
+      if (eventToDelete) {
+        const newEvents = events.filter((_, i) => i !== index);
+        setEvents(newEvents);
         await updateDoc(doc(Firebase_DB, "users", userId), {
-          [`tasks.${selectedDay}-${selectedMonth}`]: updatedTasks,
+          [`events.${selectedDay}-${selectedMonth}`]: newEvents,
         });
-  
-        setEditingTaskIndex(null);
-        setTaskInput("");
-        onTaskModalClose();
       }
-    };
-  
-    const deleteTask = async (index) => {
-      if (tasks.length > 0 && index !== null) {
-        const taskToDelete = tasks[index];
-  
-        if (taskToDelete) {
-          const newTasks = tasks.filter((_, i) => i !== index);
-          setTasks(newTasks);
-          await updateDoc(doc(Firebase_DB, "users", userId), {
-            [`tasks.${selectedDay}-${selectedMonth}`]: newTasks,
-          });
-        }
-      }
-    };
-  
-    const editEvent = (index) => {
-      if (events.length > 0 && index !== null) {
-        const eventToEdit = events[index];
-        setEventInput(eventToEdit);
-        setEditingEventIndex(index);
-        onEventModalOpen();
-      }
-    };
-  
-    const saveEditedEvent = async () => {
-      if (eventInput.trim() && editingEventIndex !== null && events.length > 0) {
-        const updatedEvents = [...events];
-        updatedEvents[editingEventIndex] = eventInput;
-  
-        setEvents(updatedEvents);
-        await updateDoc(doc(Firebase_DB, "users", userId), {
-          [`events.${selectedDay}-${selectedMonth}`]: updatedEvents,
-        });
-  
-        setEditingEventIndex(null);
-        setEventInput("");
-        onEventModalClose();
-      }
-    };
-  
-    const deleteEvent = async (index) => {
-      if (events.length > 0 && index !== null) {
-        const eventToDelete = events[index];
-  
-        if (eventToDelete) {
-          const newEvents = events.filter((_, i) => i !== index);
-          setEvents(newEvents);
-          await updateDoc(doc(Firebase_DB, "users", userId), {
-            [`events.${selectedDay}-${selectedMonth}`]: newEvents,
-          });
-        }
-      }
-    };
+    }
+  };
+
   return (
     <Box w={"100%"} p={4}>
       <HStack w={"100%"} justifyContent={"space-between"}>

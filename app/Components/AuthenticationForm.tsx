@@ -20,7 +20,10 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 import { Firebase_AUTH, Firebase_DB } from "../FirebaseConfig.js";
 import { MdAccountCircle } from "react-icons/md";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -43,7 +46,11 @@ export default function AuthenticationForm({ setGlobalUserName }) {
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(Firebase_AUTH, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        Firebase_AUTH,
+        email,
+        password
+      );
       const user = userCredential.user;
       const userId = Firebase_AUTH.currentUser;
 
@@ -76,17 +83,21 @@ export default function AuthenticationForm({ setGlobalUserName }) {
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(Firebase_AUTH, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        Firebase_AUTH,
+        email,
+        password
+      );
       const user = userCredential.user;
       await setDoc(doc(Firebase_DB, "users", user.uid), {
         name: name,
         email: email,
         createdAt: new Date(),
       });
-      setGlobalUserName(name); // Set global username
+      setGlobalUserName(name);
       toast.success("Success Account created successfully!");
       setItDone(true);
-      onClose(); // Close the modal
+      onClose();
     } catch (error) {
       toast.error(`Registration Error, ${error.message} `);
     }
@@ -98,7 +109,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
       <Heading onClick={onOpen}>
         <MdAccountCircle />
       </Heading>
-      <Box>
+      <Box p={0}>
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
           <ModalContent>

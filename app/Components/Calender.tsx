@@ -12,10 +12,12 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import Event from "./Event";
 import Task from "./Task";
+import AddWork from "./AddWork";
 
 export default function Calender() {
   const currentDate = new Date();
@@ -41,6 +43,7 @@ export default function Calender() {
 
   const [selectedDay, setSelectedDay] = useState(day);
   const [selectedMonth, setSelectedMonth] = useState(`${monthNames[month]}`);
+  const [isMobile] = useMediaQuery("(max-width: 768px)");
 
   const handleDateChange = (date) => {
     const day = date.getDate();
@@ -49,37 +52,23 @@ export default function Calender() {
     setSelectedMonth(monthNames[month]);
     console.log("Selected day:", day + " month:", monthNames[month]);
   };
-  function CreateEvent({}) {}
-  function CreateTask({}) {}
+
   return (
     <>
-      <HStack p={2}>
-        <Box p={2}>
+      <HStack
+        p={2}
+        w={"100%"}
+        justifyContent={"space-between"}
+        flexWrap={"wrap"}
+      >
+        <Box p={2} maxW={isMobile ? "100%" : "30%"}>
           <Calendar onChange={handleDateChange} />
         </Box>
-      </HStack>
-      <Box>
-      <Box>
-          {
-            <HStack justifyContent={"center"}>
-              <Heading>
-                {selectedDay} {selectedMonth}
-              </Heading>
-              <Box>
-                <Menu>
-                  <MenuButton as={Button} rightIcon={<MdKeyboardArrowDown />}>
-                    Create
-                  </MenuButton>
-                  <MenuList>
-                    <MenuItem onClick={CreateEvent}>New Event</MenuItem>
-                    <MenuItem onClick={CreateEvent}>Task</MenuItem>
-                  </MenuList>
-                </Menu>
-              </Box>
-            </HStack>
-          }
+        <Box maxW={isMobile ? "100%" :  "70%"}>
+          <AddWork selectedDay={selectedDay} selectedMonth={selectedMonth} />
         </Box>
-      </Box>
+        
+      </HStack>
     </>
   );
 }

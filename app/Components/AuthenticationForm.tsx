@@ -41,27 +41,30 @@ export default function AuthenticationForm({ setGlobalUserName }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    const auth = getAuth();
-    const storedUserId = localStorage.getItem("userId");
+    // Ensure we're in the browser environment
+    if (typeof window !== "undefined") {
+      const auth = getAuth();
+      const storedUserId = localStorage.getItem("userId");
 
-    if (storedUserId) {
-      // Fetch user data from Firestore
-      const fetchUserData = async () => {
-        try {
-          const userDoc = await getDoc(doc(Firebase_DB, "users", storedUserId));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const userName = userData.name;
-            setUserName(userName);
-            setGlobalUserName(userName);
-            setIsLoggedIn(true);
+      if (storedUserId) {
+        // Fetch user data from Firestore
+        const fetchUserData = async () => {
+          try {
+            const userDoc = await getDoc(doc(Firebase_DB, "users", storedUserId));
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              const userName = userData.name;
+              setUserName(userName);
+              setGlobalUserName(userName);
+              setIsLoggedIn(true);
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
           }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      };
+        };
 
-      fetchUserData();
+        fetchUserData();
+      }
     }
   }, [setGlobalUserName]);
 
@@ -86,7 +89,9 @@ export default function AuthenticationForm({ setGlobalUserName }) {
         const userName = userData.name;
         setUserName(userName);
         setGlobalUserName(userName);
-        localStorage.setItem("userId", userId);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("userId", userId);
+        }
         toast.success(`Success! Welcome back, ${userName}!`);
         setIsLoggedIn(true);
         onClose();
@@ -117,7 +122,9 @@ export default function AuthenticationForm({ setGlobalUserName }) {
         createdAt: new Date(),
       });
       setGlobalUserName(name);
-      localStorage.setItem("userId", user.uid);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("userId", user.uid);
+      }
       toast.success("Success Account created successfully!");
       setIsLoggedIn(true);
       onClose();
@@ -145,7 +152,9 @@ export default function AuthenticationForm({ setGlobalUserName }) {
 
       setUserName(userName);
       setGlobalUserName(userName);
-      localStorage.setItem("userId", userId);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("userId", userId);
+      }
       toast.success(`Success! Welcome back, ${userName}!`);
       setIsLoggedIn(true);
       onClose();

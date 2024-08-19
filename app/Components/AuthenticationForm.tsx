@@ -223,7 +223,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
                       </HStack>
                     ) : (
                       <HStack>
-                        <Text>Don't have an account?</Text>
+                        <Text>{`Don't have an account?`}</Text>
                         <Text
                           onClick={() => setNewUser(true)}
                           className="text-blue-700"

@@ -6,7 +6,6 @@ import "react-calendar/dist/Calendar.css";
 import React, { useEffect, useState } from "react";
 import {
   Box,
-  Button,
   Heading,
   HStack,
   useMediaQuery,
@@ -56,40 +55,39 @@ const Calender = () => {
   };
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      console.warn("localStorage is not available");
+      return;
+    }
+
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         const userId = user.uid;
         setUserId(userId);
-        if (typeof window !== "undefined") {
-          try {
-            localStorage.setItem("userId", userId);
-          } catch (error) {
-            console.error("Error saving to localStorage:", error);
-          }
+        try {
+          localStorage.setItem("userId", userId);
+        } catch (error) {
+          console.error("Error saving to localStorage:", error);
         }
       } else {
         setUserId(null);
-        if (typeof window !== "undefined") {
-          try {
-            localStorage.removeItem("userId");
-          } catch (error) {
-            console.error("Error removing from localStorage:", error);
-          }
+        try {
+          localStorage.removeItem("userId");
+        } catch (error) {
+          console.error("Error removing from localStorage:", error);
         }
       }
     });
 
     // Initialize userId from localStorage
-    if (typeof window !== "undefined") {
-      try {
-        const storedUserId = localStorage.getItem("userId");
-        if (storedUserId) {
-          setUserId(storedUserId);
-        }
-      } catch (error) {
-        console.error("Error accessing localStorage:", error);
+    try {
+      const storedUserId = localStorage.getItem("userId");
+      if (storedUserId) {
+        setUserId(storedUserId);
       }
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
     }
 
     return () => unsubscribe();

@@ -19,25 +19,51 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithPopup,
+  getAuth,
 } from "firebase/auth";
-import { Firebase_AUTH, Firebase_DB } from "../FirebaseConfig.js";
 import { MdAccountCircle } from "react-icons/md";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import SIgnInOps from "../components/SIgnInOps";
 import toast, { Toaster } from "react-hot-toast";
+import { Firebase_AUTH, Firebase_DB, provider } from "../FirebaseConfig";
 
 export default function AuthenticationForm({ setGlobalUserName }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isNewUser, setNewUser] = useState(false);
-  const [isDone, setItDone] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    const auth = getAuth();
+    const storedUserId = localStorage.getItem("userId");
+
+    if (storedUserId) {
+      // Fetch user data from Firestore
+      const fetchUserData = async () => {
+        try {
+          const userDoc = await getDoc(doc(Firebase_DB, "users", storedUserId));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const userName = userData.name;
+            setUserName(userName);
+            setGlobalUserName(userName);
+            setIsLoggedIn(true);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      };
+
+      fetchUserData();
+    }
+  }, [setGlobalUserName]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -52,24 +78,20 @@ export default function AuthenticationForm({ setGlobalUserName }) {
         password
       );
       const user = userCredential.user;
-      const userId = Firebase_AUTH.currentUser;
+      const userId = user.uid;
 
-      if (userId) {
-        const userDoc = await getDoc(doc(Firebase_DB, "users", user.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const userName = userData.name;
-          setUserName(userName);
-          setGlobalUserName(userName); // Set global username
-          toast.success(`Success! Welcome back, ${userName}!`);
-          setItDone(true);
-          onClose(); // Close the modal
-        } else {
-          toast.error("User data not found.");
-        }
+      const userDoc = await getDoc(doc(Firebase_DB, "users", userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const userName = userData.name;
+        setUserName(userName);
+        setGlobalUserName(userName);
+        localStorage.setItem("userId", userId);
+        toast.success(`Success! Welcome back, ${userName}!`);
+        setIsLoggedIn(true);
+        onClose();
       } else {
-        setItDone(false);
-        toast.error("Error retrieving user ID.");
+        toast.error("User data not found.");
       }
     } catch (error) {
       toast.error(`Login Error: ${error.message}`);
@@ -95,94 +117,135 @@ export default function AuthenticationForm({ setGlobalUserName }) {
         createdAt: new Date(),
       });
       setGlobalUserName(name);
+      localStorage.setItem("userId", user.uid);
       toast.success("Success Account created successfully!");
-      setItDone(true);
+      setIsLoggedIn(true);
       onClose();
     } catch (error) {
       toast.error(`Registration Error, ${error.message} `);
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(Firebase_AUTH, provider);
+      const user = result.user;
+      const userId = user.uid;
+      const userName = user.displayName || "Unknown User"; // Default if no display name
+
+      const userDoc = await getDoc(doc(Firebase_DB, "users", userId));
+      if (!userDoc.exists()) {
+        // Create new user if not exists
+        await setDoc(doc(Firebase_DB, "users", userId), {
+          name: userName,
+          email: user.email,
+          createdAt: new Date(),
+        });
+      }
+
+      setUserName(userName);
+      setGlobalUserName(userName);
+      localStorage.setItem("userId", userId);
+      toast.success(`Success! Welcome back, ${userName}!`);
+      setIsLoggedIn(true);
+      onClose();
+    } catch (error) {
+      toast.error(`Google Sign-In Error: ${error.message}`);
+    }
+  };
+
   return (
     <div>
       <Toaster />
-      <Heading onClick={onOpen}>
-        <MdAccountCircle />
-      </Heading>
-      <Box p={0}>
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>{isNewUser ? "Register" : "Login"}</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <form>
-                {isNewUser && (
-                  <FormControl p={2}>
-                    <FormLabel>Name</FormLabel>
-                    <Input
-                      type="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                    />
-                  </FormControl>
-                )}
-                <FormControl p={2}>
-                  <FormLabel>Email</FormLabel>
-                  <Input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </FormControl>
-                <FormControl p={2}>
-                  <FormLabel>Password</FormLabel>
-                  <Input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </FormControl>
-                {isNewUser ? (
-                  <HStack>
-                    <Text>Already have an account?</Text>
-                    <Text
-                      onClick={() => setNewUser(false)}
-                      className=" text-blue-700"
-                    >
-                      Log In
-                    </Text>
-                  </HStack>
-                ) : (
-                  <HStack>
-                    <Text>{`Don't have an account?`}</Text>
-                    <Text
-                      onClick={() => setNewUser(true)}
-                      className=" text-blue-700"
-                    >
-                      Create One
-                    </Text>
-                  </HStack>
-                )}
-              </form>
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="ghost" mr={3} onClick={onClose}>
-                Close
-              </Button>
-              {isNewUser ? (
-                <Button colorScheme="blue" onClick={handleRegister}>
-                  Register
-                </Button>
-              ) : (
-                <Button colorScheme="blue" onClick={handleLogin}>
-                  Login
-                </Button>
-              )}
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      </Box>
+      {isLoggedIn ? (
+        <Heading>
+          <MdAccountCircle />
+          {userName}
+        </Heading>
+      ) : (
+        <>
+          <Heading onClick={onOpen}>
+            <MdAccountCircle />
+          </Heading>
+          <Box p={0}>
+            <Modal isOpen={isOpen} onClose={onClose}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>{isNewUser ? "Register" : "Login"}</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <form>
+                    {isNewUser && (
+                      <FormControl p={2}>
+                        <FormLabel>Name</FormLabel>
+                        <Input
+                          type="name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                        />
+                      </FormControl>
+                    )}
+                    <FormControl p={2}>
+                      <FormLabel>Email</FormLabel>
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormControl p={2}>
+                      <FormLabel>Password</FormLabel>
+                      <Input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </FormControl>
+                    {isNewUser ? (
+                      <HStack>
+                        <Text>Already have an account?</Text>
+                        <Text
+                          onClick={() => setNewUser(false)}
+                          className="text-blue-700"
+                        >
+                          Log In
+                        </Text>
+                      </HStack>
+                    ) : (
+                      <HStack>
+                        <Text>{`Don't have an account?`}</Text>
+                        <Text
+                          onClick={() => setNewUser(true)}
+                          className="text-blue-700"
+                        >
+                          Create One
+                        </Text>
+                      </HStack>
+                    )}
+                  </form>
+                </ModalBody>
+                <ModalFooter>
+                  <Button variant="ghost" mr={3} onClick={onClose}>
+                    Close
+                  </Button>
+                  {isNewUser ? (
+                    <Button colorScheme="blue" onClick={handleRegister}>
+                      Register
+                    </Button>
+                  ) : (
+                    <Button colorScheme="blue" onClick={handleLogin}>
+                      Login
+                    </Button>
+                  )}
+                  <Button colorScheme="red" ml={3} onClick={handleGoogleSignIn}>
+                    Sign in with Google
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          </Box>
+        </>
+      )}
     </div>
   );
 }

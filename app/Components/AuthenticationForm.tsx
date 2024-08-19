@@ -26,10 +26,10 @@ import {
   signInWithPopup,
   getAuth,
 } from "firebase/auth";
-import { MdAccountCircle } from "react-icons/md";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import toast, { Toaster } from "react-hot-toast";
 import { Firebase_AUTH, Firebase_DB, provider } from "../FirebaseConfig";
+import { MdAccountCircle } from "react-icons/md";
 
 export default function AuthenticationForm({ setGlobalUserName }) {
   const [name, setName] = useState("");
@@ -55,7 +55,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
               const userData = userDoc.data();
               const userName = userData.name;
               setUserName(userName);
-              setGlobalUserName(userName);
+              setGlobalUserName(userName); // Set username
               setIsLoggedIn(true);
             }
           } catch (error) {
@@ -88,7 +88,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
         const userData = userDoc.data();
         const userName = userData.name;
         setUserName(userName);
-        setGlobalUserName(userName);
+        setGlobalUserName(userName); // Set username
         if (typeof window !== "undefined") {
           localStorage.setItem("userId", userId);
         }
@@ -121,15 +121,16 @@ export default function AuthenticationForm({ setGlobalUserName }) {
         email: email,
         createdAt: new Date(),
       });
-      setGlobalUserName(name);
+      setUserName(name);
+      setGlobalUserName(name); // Set username
       if (typeof window !== "undefined") {
         localStorage.setItem("userId", user.uid);
       }
-      toast.success("Success Account created successfully!");
+      toast.success("Success! Account created successfully!");
       setIsLoggedIn(true);
       onClose();
     } catch (error) {
-      toast.error(`Registration Error, ${error.message} `);
+      toast.error(`Registration Error: ${error.message}`);
     }
   };
 
@@ -151,7 +152,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
       }
 
       setUserName(userName);
-      setGlobalUserName(userName);
+      setGlobalUserName(userName); // Set username
       if (typeof window !== "undefined") {
         localStorage.setItem("userId", userId);
       }
@@ -173,9 +174,9 @@ export default function AuthenticationForm({ setGlobalUserName }) {
         </Heading>
       ) : (
         <>
-          <Heading onClick={onOpen}>
-            <MdAccountCircle />
-          </Heading>
+          <Button colorScheme="blue" onClick={onOpen}>
+            Get Started!!
+          </Button>
           <Box p={0}>
             <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
@@ -188,7 +189,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
                       <FormControl p={2}>
                         <FormLabel>Name</FormLabel>
                         <Input
-                          type="name"
+                          type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                         />
@@ -222,7 +223,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
                       </HStack>
                     ) : (
                       <HStack>
-                        <Text>{`Don't have an account?`}</Text>
+                        <Text>Don't have an account?</Text>
                         <Text
                           onClick={() => setNewUser(true)}
                           className="text-blue-700"

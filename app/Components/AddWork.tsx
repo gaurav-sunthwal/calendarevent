@@ -25,6 +25,7 @@ import {
   Text,
   Divider,
   useDisclosure,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import {
@@ -43,7 +44,7 @@ export default function AddWork({ selectedDay, selectedMonth, userId }) {
   const [eventInput, setEventInput] = useState("");
   const [editingTaskIndex, setEditingTaskIndex] = useState(null);
   const [editingEventIndex, setEditingEventIndex] = useState(null);
-
+  const [isMobile] = useMediaQuery("(max-width: 768px)");
   const {
     isOpen: isTaskModalOpen,
     onOpen: onTaskModalOpen,
@@ -210,10 +211,10 @@ export default function AddWork({ selectedDay, selectedMonth, userId }) {
 
       <Divider my={4} w={"70%"} />
 
-      <HStack spacing={6} w={"100%"} alignItems={"start"}>
+      <HStack spacing={6} w={"100%"} alignItems={"start"} flexWrap={"wrap"}>
         <Box
-          w={"33%"}
-          position={"absolute"}
+          w={isMobile ? "100%" : "33%"}
+          position={isMobile ? "normal" : "absolute"}
           h={"50vh"}
           p={4}
           borderWidth={1}
@@ -247,9 +248,9 @@ export default function AddWork({ selectedDay, selectedMonth, userId }) {
           )}
         </Box>
         <Box
-          w={"35%"}
+          w={isMobile ? "100%" : "33%"}
           h={"50vh"}
-          position={"absolute"}
+          position={isMobile ? "normal" : "absolute"}
           right={10}
           p={4}
           borderWidth={1}

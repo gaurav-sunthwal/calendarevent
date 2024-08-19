@@ -4,46 +4,34 @@
 
 import {
   Box,
-  Button,
-  Card,
-  CardBody,
   Heading,
   HStack,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Text,
-  useDisclosure,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { MdAccountCircle } from "react-icons/md";
 import AuthenticationForm from "./AuthenticationForm";
 
 export default function Navbar() {
-  const [newUser, setNewUser] = useState(false);
   const [globalUserName, setGlobalUserName] = useState("");
-
-  const handalCLick = () => {
-    setNewUser(true);
-  };
+  const [isMobile] = useMediaQuery("(max-width: 768px)");
   return (
     <div>
       <HStack className="NavBar" p={2} justifyContent={"space-between"}>
-        <Box>
-          <Heading>My Calender</Heading>
+        <Box maxW={"50%"}>
+          <Heading fontSize={isMobile ? "5vw" : "3vw"}>Make My Today</Heading>
         </Box>
-        <Box>
+        <Box maxW={"50%"}>
           <HStack>
-            { globalUserName === "" ? <>
-              <Text>Login!! </Text>
-              <AuthenticationForm setGlobalUserName={setGlobalUserName} />
-            </>
-                :  <Text>WelCome!! {globalUserName}</Text>
-            }
+            {globalUserName === "" ? (
+              <>
+                <Text>Login!! </Text>
+                <AuthenticationForm setGlobalUserName={setGlobalUserName} />
+              </>
+            ) : (
+              <Text textAlign={"center"}>Welcome!! {globalUserName}</Text>
+            )}
           </HStack>
         </Box>
       </HStack>

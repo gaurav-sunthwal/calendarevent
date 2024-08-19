@@ -49,7 +49,7 @@ const Calender = () => {
   const [isAuthFormOpen, setAuthFormOpen] = useState(false);
 
   const handleDateChange = (date) => {
-    const day = date.getDate();
+    const day = String(date.getDate()).padStart(2, "0");
     const month = date.getMonth();
     setSelectedDay(day);
     setSelectedMonth(monthNames[month]);
@@ -61,29 +61,35 @@ const Calender = () => {
       if (user) {
         const userId = user.uid;
         setUserId(userId);
-        try {
-          localStorage.setItem("userId", userId);
-        } catch (error) {
-          console.error("Error saving to localStorage:", error);
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("userId", userId);
+          } catch (error) {
+            console.error("Error saving to localStorage:", error);
+          }
         }
       } else {
         setUserId(null);
-        try {
-          localStorage.removeItem("userId");
-        } catch (error) {
-          console.error("Error removing from localStorage:", error);
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.removeItem("userId");
+          } catch (error) {
+            console.error("Error removing from localStorage:", error);
+          }
         }
       }
     });
 
     // Initialize userId from localStorage
-    try {
-      const storedUserId = localStorage.getItem("userId");
-      if (storedUserId) {
-        setUserId(storedUserId);
+    if (typeof window !== "undefined") {
+      try {
+        const storedUserId = localStorage.getItem("userId");
+        if (storedUserId) {
+          setUserId(storedUserId);
+        }
+      } catch (error) {
+        console.error("Error accessing localStorage:", error);
       }
-    } catch (error) {
-      console.error("Error accessing localStorage:", error);
     }
 
     return () => unsubscribe();
@@ -110,7 +116,6 @@ const Calender = () => {
   return (
     <HStack p={2} w={"100%"} flexWrap={"wrap"}>
       <VStack p={2} maxW={isMobile ? "100%" : "30%"}>
-        
         <Calendar onChange={handleDateChange} />
       </VStack>
       <Box maxW={isMobile ? "100%" : "100%"}>

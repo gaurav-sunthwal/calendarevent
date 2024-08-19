@@ -105,7 +105,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
 
   const handleRegister = async () => {
     if (!email || !password || !name) {
-      toast.error("Error Please fill in all fields.");
+      toast.error("Error! Please fill in all fields.");
       return;
     }
 

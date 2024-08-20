@@ -44,7 +44,7 @@ export default function AddWork({ selectedDay, selectedMonth, userId }) {
   const [eventInput, setEventInput] = useState("");
   const [editingTaskIndex, setEditingTaskIndex] = useState(null);
   const [editingEventIndex, setEditingEventIndex] = useState(null);
-  const [isMobile] = useMediaQuery("(max-width: 768px)");
+  const [isMobile] = useMediaQuery("(max-width: 850px)");
   const {
     isOpen: isTaskModalOpen,
     onOpen: onTaskModalOpen,

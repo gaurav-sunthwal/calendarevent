@@ -1,7 +1,28 @@
-@tailwind base;
-@tailwind components;
+@tailwind base ;
+@tailwind components ;
 @tailwind utilities;
 
 .NavBar {
-  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px !important;
+  /* box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px  !important; */
+}
+
+
+
+.react-calendar {
+  color: #2b1616;
+  background-color: #755c5c !important; /* Light grey background */
+}
+
+.react-calendar__tile {
+  background-color: #fff !important; /* White background for each tile */
+}
+
+.react-calendar__tile--active {
+  background-color: #646c75 !important; /* Blue background for active tile */
+  color: #7a4444 !important !important; /* White text for active tile */
+}
+
+.react-calendar__navigation button {
+  background-color: #007bff !important; /* Blue background for navigation buttons */
+  color: #fff !important; /* White text for navigation buttons */
 }

@@ -4,13 +4,7 @@
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Heading,
-  HStack,
-  useMediaQuery,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Heading, HStack, useMediaQuery, VStack } from "@chakra-ui/react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import dynamic from "next/dynamic";
 
@@ -44,7 +38,7 @@ const Calender = () => {
   const [userId, setUserId] = useState(null);
   const [selectedDay, setSelectedDay] = useState(day);
   const [selectedMonth, setSelectedMonth] = useState(`${monthNames[month]}`);
-  const [isMobile] = useMediaQuery("(max-width: 768px)");
+  const [isMobile] = useMediaQuery("(max-width: 850px)");
   const [isAuthFormOpen, setAuthFormOpen] = useState(false);
 
   const handleDateChange = (date) => {
@@ -112,7 +106,12 @@ const Calender = () => {
   }
 
   return (
-    <HStack p={2} w={"100%"} flexWrap={"wrap"}>
+    <HStack
+      p={2}
+      w={"100%"}
+      justifyContent={isMobile ? "center" : "normal"}
+      flexWrap={"wrap"}
+    >
       <VStack p={2} maxW={isMobile ? "100%" : "30%"}>
         <Calendar onChange={handleDateChange} />
       </VStack>

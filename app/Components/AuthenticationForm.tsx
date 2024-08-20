@@ -50,13 +50,17 @@ export default function AuthenticationForm({ setGlobalUserName }) {
         // Fetch user data from Firestore
         const fetchUserData = async () => {
           try {
-            const userDoc = await getDoc(doc(Firebase_DB, "users", storedUserId));
+            const userDoc = await getDoc(
+              doc(Firebase_DB, "users", storedUserId)
+            );
             if (userDoc.exists()) {
               const userData = userDoc.data();
               const userName = userData.name;
               setUserName(userName);
               setGlobalUserName(userName); // Set username
               setIsLoggedIn(true);
+              // Store username in localStorage
+              localStorage.setItem("userName", userName);
             }
           } catch (error) {
             console.error("Error fetching user data:", error);
@@ -91,6 +95,8 @@ export default function AuthenticationForm({ setGlobalUserName }) {
         setGlobalUserName(userName); // Set username
         if (typeof window !== "undefined") {
           localStorage.setItem("userId", userId);
+          // Store username in localStorage
+          localStorage.setItem("userName", userName);
         }
         toast.success(`Success! Welcome back, ${userName}!`);
         setIsLoggedIn(true);
@@ -125,6 +131,8 @@ export default function AuthenticationForm({ setGlobalUserName }) {
       setGlobalUserName(name); // Set username
       if (typeof window !== "undefined") {
         localStorage.setItem("userId", user.uid);
+        // Store username in localStorage
+        localStorage.setItem("userName", name);
       }
       toast.success("Success! Account created successfully!");
       setIsLoggedIn(true);
@@ -155,6 +163,8 @@ export default function AuthenticationForm({ setGlobalUserName }) {
       setGlobalUserName(userName); // Set username
       if (typeof window !== "undefined") {
         localStorage.setItem("userId", userId);
+        // Store username in localStorage
+        localStorage.setItem("userName", userName);
       }
       toast.success(`Success! Welcome back, ${userName}!`);
       setIsLoggedIn(true);

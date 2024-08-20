@@ -9,6 +9,8 @@ import {
   Heading,
   HStack,
   Input,
+  InputGroup,
+  InputRightElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -36,10 +38,13 @@ export default function AuthenticationForm({ setGlobalUserName }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isNewUser, setNewUser] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const handalPasswordShow = ()=>{
+    setShowPassword(!showPassword)
+  }
   useEffect(() => {
     // Ensure we're in the browser environment
     if (typeof window !== "undefined") {
@@ -141,7 +146,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
       toast.error(`Registration Error: ${error.message}`);
     }
   };
-
+  
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(Firebase_AUTH, provider);
@@ -215,11 +220,18 @@ export default function AuthenticationForm({ setGlobalUserName }) {
                     </FormControl>
                     <FormControl p={2}>
                       <FormLabel>Password</FormLabel>
-                      <Input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
+                      <InputGroup size="md">
+                        <Input
+                          type={showPassword ? "password" : "text"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <InputRightElement width="4.5rem">
+                          <Button h="1.75rem" size="sm" onClick={handalPasswordShow}>
+                            {showPassword ? "Hide" : "Show"}
+                          </Button>
+                        </InputRightElement>
+                      </InputGroup>
                     </FormControl>
                     {isNewUser ? (
                       <HStack>

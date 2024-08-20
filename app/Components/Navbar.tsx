@@ -57,7 +57,7 @@ export default function Navbar() {
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <Box>
             <Text fontWeight={"700"} fontSize={"25px"}>
-             Set My Day
+             SetMyDay
             </Text>
           </Box>
 
@@ -90,7 +90,7 @@ export default function Navbar() {
                   </Center>
                   <br />
                   <Center>
-                    <Text>
+                    <Text p={2}>
                       {globalUserName === "Guest"
                         ? "Guest"
                         : `Welcome!! ${globalUserName}`}

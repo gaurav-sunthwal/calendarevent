@@ -57,7 +57,7 @@ export default function Navbar() {
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <Box>
             <Text fontWeight={"700"} fontSize={"25px"}>
-              Make My ToDay
+             Set My Day
             </Text>
           </Box>
 

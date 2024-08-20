@@ -4,7 +4,14 @@
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import React, { useEffect, useState } from "react";
-import { Box, Heading, HStack, useMediaQuery, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Heading,
+  HStack,
+  useMediaQuery,
+  VStack,
+} from "@chakra-ui/react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import dynamic from "next/dynamic";
 
@@ -13,6 +20,8 @@ const AuthenticationForm = dynamic(() => import("./AuthenticationForm"), {
   ssr: false,
 });
 import AddWork from "./AddWork";
+import signup from "../Img/signup.png";
+import Image from "next/image";
 
 const Calender = () => {
   const currentDate = new Date();
@@ -97,8 +106,13 @@ const Calender = () => {
 
   if (!userId) {
     return (
-      <VStack h={"60vh"} justifyContent={"center"}>
-        <Heading>Please Login to your Account!!</Heading>
+      <VStack h={"80vh"} justifyContent={"center"}>
+        <Center p={3}>
+          <Image alt="signup img" src={signup} />
+        </Center>
+        <Heading textAlign={"center"} p={2}>
+           Login to your Account!!
+        </Heading>
 
         <AuthenticationForm setGlobalUserName={() => {}} />
       </VStack>

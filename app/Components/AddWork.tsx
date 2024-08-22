@@ -26,6 +26,7 @@ import {
   Divider,
   useDisclosure,
   useMediaQuery,
+  Textarea,
 } from "@chakra-ui/react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import {
@@ -294,7 +295,7 @@ export default function AddWork({ selectedDay, selectedMonth, userId }) {
             <ModalBody>
               <FormControl>
                 <FormLabel>Task</FormLabel>
-                <Input
+                <Textarea
                   value={taskInput}
                   onChange={(e) => setTaskInput(e.target.value)}
                   placeholder="Enter task"

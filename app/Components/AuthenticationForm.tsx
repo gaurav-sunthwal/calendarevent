@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   HStack,
@@ -34,6 +35,7 @@ import { Firebase_AUTH, Firebase_DB, provider } from "../FirebaseConfig";
 import { MdAccountCircle } from "react-icons/md";
 
 export default function AuthenticationForm({ setGlobalUserName }) {
+  const [error, setError] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,9 +44,9 @@ export default function AuthenticationForm({ setGlobalUserName }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const handalPasswordShow = ()=>{
-    setShowPassword(!showPassword)
-  }
+  const handalPasswordShow = () => {
+    setShowPassword(!showPassword);
+  };
   useEffect(() => {
     // Ensure we're in the browser environment
     if (typeof window !== "undefined") {
@@ -69,6 +71,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
             }
           } catch (error) {
             console.error("Error fetching user data:", error);
+            setError("Error to fetch user data");
           }
         };
 
@@ -80,6 +83,7 @@ export default function AuthenticationForm({ setGlobalUserName }) {
   const handleLogin = async () => {
     if (!email || !password) {
       toast.error("Error!! Please enter both email and password.");
+      setError("wrong email or password");
       return;
     }
 
@@ -107,16 +111,17 @@ export default function AuthenticationForm({ setGlobalUserName }) {
         setIsLoggedIn(true);
         onClose();
       } else {
-        toast.error("User data not found.");
+        setError("User data not found.");
       }
     } catch (error) {
-      toast.error(`Login Error: ${error.message}`);
+      console.log(`Login Error: ${error.message}`);
+      setError("Wrong Email or password!!");
     }
   };
 
   const handleRegister = async () => {
     if (!email || !password || !name) {
-      toast.error("Error! Please fill in all fields.");
+      setError("Error! Please fill in all fields.");
       return;
     }
 
@@ -143,10 +148,11 @@ export default function AuthenticationForm({ setGlobalUserName }) {
       setIsLoggedIn(true);
       onClose();
     } catch (error) {
-      toast.error(`Registration Error: ${error.message}`);
+      setError(`Registration Error: ${error.message}`);
+      setError("wrong registration")
     }
   };
-  
+
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(Firebase_AUTH, provider);
@@ -175,7 +181,8 @@ export default function AuthenticationForm({ setGlobalUserName }) {
       setIsLoggedIn(true);
       onClose();
     } catch (error) {
-      toast.error(`Google Sign-In Error: ${error.message}`);
+      console.log(`Google Sign-In Error: ${error.message}`);
+      setError("Google Sign-In Error")
     }
   };
 
@@ -193,13 +200,13 @@ export default function AuthenticationForm({ setGlobalUserName }) {
             Get Started!!
           </Button>
           <Box p={0}>
-            <Modal isOpen={isOpen} onClose={onClose}>
-              <ModalOverlay />
-              <ModalContent>
-                <ModalHeader>{isNewUser ? "Register" : "Login"}</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                  <form>
+            <form>
+              <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>{isNewUser ? "Register" : "Login"}</ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
                     {isNewUser && (
                       <FormControl p={2}>
                         <FormLabel>Name</FormLabel>
@@ -227,12 +234,17 @@ export default function AuthenticationForm({ setGlobalUserName }) {
                           onChange={(e) => setPassword(e.target.value)}
                         />
                         <InputRightElement width="4.5rem">
-                          <Button h="1.75rem" size="sm" onClick={handalPasswordShow}>
+                          <Button
+                            h="1.75rem"
+                            size="sm"
+                            onClick={handalPasswordShow}
+                          >
                             {showPassword ? "Hide" : "Show"}
                           </Button>
                         </InputRightElement>
                       </InputGroup>
                     </FormControl>
+                    <Text color={"red"} p={1}>{error}</Text>
                     {isNewUser ? (
                       <HStack>
                         <Text>Already have an account?</Text>
@@ -254,27 +266,39 @@ export default function AuthenticationForm({ setGlobalUserName }) {
                         </Text>
                       </HStack>
                     )}
-                  </form>
-                </ModalBody>
-                <ModalFooter>
-                  <Button variant="ghost" mr={3} onClick={onClose}>
-                    Close
-                  </Button>
-                  {isNewUser ? (
-                    <Button colorScheme="blue" onClick={handleRegister}>
-                      Register
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button variant="ghost" mr={3} onClick={onClose}>
+                      Close
                     </Button>
-                  ) : (
-                    <Button colorScheme="blue" onClick={handleLogin}>
-                      Login
+                    {isNewUser ? (
+                      <Button
+                        colorScheme="blue"
+                        type="submit"
+                        onClick={handleRegister}
+                      >
+                        Register
+                      </Button>
+                    ) : (
+                      <Button
+                        colorScheme="blue"
+                        type="submit"
+                        onClick={handleLogin}
+                      >
+                        Login
+                      </Button>
+                    )}
+                    <Button
+                      colorScheme="red"
+                      ml={3}
+                      onClick={handleGoogleSignIn}
+                    >
+                      Sign in with Google
                     </Button>
-                  )}
-                  <Button colorScheme="red" ml={3} onClick={handleGoogleSignIn}>
-                    Sign in with Google
-                  </Button>
-                </ModalFooter>
-              </ModalContent>
-            </Modal>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
+            </form>
           </Box>
         </>
       )}
